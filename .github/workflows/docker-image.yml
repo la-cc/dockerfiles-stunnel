@@ -33,7 +33,7 @@ jobs:
       with:
         # list of Docker images to use as base name for tags
         images: |
-          ghcr.io/deb4sh/stunnel
+          ghcr.io/Hamburg-Port-Authority/stunnel
         labels: |
           org.opencontainers.image.title="Stunnel"
           org.opencontainers.image.description="Stunnel on Alpine"
