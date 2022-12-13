@@ -1,4 +1,4 @@
-FROM alpine:edge
+FROM alpine:latest
 
 RUN set -x \
  && addgroup -S stunnel \
@@ -27,11 +27,3 @@ RUN set -x \
 
 ENTRYPOINT ["/srv/stunnel.sh"]
 CMD ["stunnel"]
-
-LABEL org.label-schema.name="dweomer/stunnel" \
-      org.label-schema.description="Stunnel on Alpine" \
-      org.label-schema.url="https://github.com/dweomer/dockerfiles-stunnel/" \
-      org.label-schema.usage="https://github.com/dweomer/dockerfiles-stunnel/blob/master/README.md" \
-      org.label-schema.vcs-url="https://github.com/dweomer/dockerfiles-stunnel/" \
-      org.label-schema.vendor="Jacob Blain Christen - mailto:dweomer5@gmail.com, https://github.com/dweomer, https://twitter.com/dweomer" \
-      org.label-schema.schema-version="1.0"
