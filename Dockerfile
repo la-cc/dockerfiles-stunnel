@@ -23,13 +23,8 @@ COPY entrypoint.sh /srv/entrypoint.sh
 # Set up directories and permissions
 RUN set -x \
        && chmod +x /srv/stunnel.sh /srv/entrypoint.sh \
-       && mkdir -p /var/run/stunnel /var/log/stunnel \
-       && chown -R stunnel:stunnel /var/run/stunnel /var/log/stunnel
-
-# Ensure the stunnel configuration directory exists and create an initial config file if needed
-RUN mkdir -p /etc/stunnel \
-       && echo "pid = /var/run/stunnel.pid" > /etc/stunnel/stunnel.conf \
-       && mv -v /etc/stunnel/stunnel.conf /etc/stunnel/stunnel.conf.original || true
+       && mkdir -p /var/run/stunnel /var/log/stunnel /etc/stunnel \
+       && chown -R stunnel:stunnel /var/run/stunnel /var/log/stunnel /etc/stunnel
 
 # Pre-create the stunnel.conf file and set permissions
 RUN touch /etc/stunnel/stunnel.conf \
