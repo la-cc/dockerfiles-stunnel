@@ -18,20 +18,18 @@ RUN apt-get update && apt-get install -y \
 COPY stunnel.conf.template /srv/stunnel/stunnel.conf.template
 COPY openssl.cnf /srv/stunnel/openssl.cnf
 COPY stunnel.sh /srv/stunnel.sh
+COPY entrypoint.sh /srv/entrypoint.sh
 
 # Set up directories and permissions
 RUN set -x \
-       && chmod +x /srv/stunnel.sh \
+       && chmod +x /srv/stunnel.sh /srv/entrypoint.sh \
        && mkdir -p /var/run/stunnel /var/log/stunnel \
        && chown -R stunnel:stunnel /var/run/stunnel /var/log/stunnel
 
 # Ensure the stunnel configuration directory exists and create an initial config file if needed
 RUN mkdir -p /etc/stunnel \
        && echo "pid = /var/run/stunnel.pid" > /etc/stunnel/stunnel.conf \
-       && mv -v /etc/stunnel/stunnel.conf /etc/stunnel/stunnel.conf.original
-
-# Create certificates and CA files as root
-RUN cp -v /etc/ssl/certs/ca-certificates.crt /usr/local/share/ca-certificates/stunnel-ca.crt
+       && mv -v /etc/stunnel/stunnel.conf /etc/stunnel/stunnel.conf.original || true
 
 # Pre-create the stunnel.conf file and set permissions
 RUN touch /etc/stunnel/stunnel.conf \
@@ -50,5 +48,5 @@ USER stunnel
 WORKDIR /srv
 
 # Define entrypoint and CMD
-ENTRYPOINT ["/usr/bin/authbind", "/srv/stunnel.sh"]
+ENTRYPOINT ["/srv/entrypoint.sh"]
 CMD ["stunnel"]
