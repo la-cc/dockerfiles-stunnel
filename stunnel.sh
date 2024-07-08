@@ -40,4 +40,4 @@ if [ ! -s "${STUNNEL_CONF}" ]; then
 fi
 
 # Run stunnel with custom PID file
-exec stunnel -P ${STUNNEL_PID} ${STUNNEL_CONF}
+exec stunnel
