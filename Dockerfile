@@ -39,6 +39,10 @@ RUN cp -v /etc/ssl/certs/ca-certificates.crt /usr/local/share/ca-certificates/st
 RUN touch /etc/stunnel/stunnel.conf \
        && chown stunnel:stunnel /etc/stunnel/stunnel.conf
 
+# Grant socat the capability to bind to privileged ports
+RUN apk add --no-cache libcap \
+       && setcap 'cap_net_bind_service=+ep' /usr/bin/socat
+
 # Switch to non-root user
 USER stunnel
 
