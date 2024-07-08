@@ -1,10 +1,11 @@
 FROM alpine:latest
 
-# Add user and group for stunnel
+# Create the group and user "stunnel"
 RUN set -x \
        && addgroup -S stunnel \
        && adduser -S -G stunnel stunnel
 
+# Install necessary packages as root
 RUN apk add --update --no-cache \
        ca-certificates \
        libintl \
@@ -19,25 +20,30 @@ RUN apk add --update --no-cache \
        && apk --no-network info openssl \
        && apk --no-network info stunnel
 
-# Copy necessary files to /srv/stunnel/
+# Copy configuration files and scripts
 COPY *.template openssl.cnf /srv/stunnel/
 COPY stunnel.sh /srv/
 
-# Set permissions and prepare directories
+# Set up directories and permissions
 RUN set -x \
        && chmod +x /srv/stunnel.sh \
        && mkdir -p /var/run/stunnel /var/log/stunnel \
        && chown -vR stunnel:stunnel /var/run/stunnel /var/log/stunnel \
        && mv -v /etc/stunnel/stunnel.conf /etc/stunnel/stunnel.conf.original
 
+# Create certificates and CA files as root
 RUN cp -v /etc/ssl/certs/ca-certificates.crt /usr/local/share/ca-certificates/stunnel-ca.crt
 
-# Wechsel zum nicht-root Benutzer
+# Pre-create the stunnel.conf file and set permissions
+RUN touch /etc/stunnel/stunnel.conf \
+       && chown stunnel:stunnel /etc/stunnel/stunnel.conf
+
+# Switch to non-root user
 USER stunnel
 
-# Set the working directory
+# Set working directory
 WORKDIR /srv
 
-# Entrypoint and command
+# Define entrypoint and CMD
 ENTRYPOINT ["/srv/stunnel.sh"]
 CMD ["stunnel"]
