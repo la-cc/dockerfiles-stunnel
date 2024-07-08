@@ -36,11 +36,11 @@ RUN mkdir -p /etc/authbind/byport \
        && chown stunnel /etc/authbind/byport/465 \
        && chmod 500 /etc/authbind/byport/465
 
-# Switch to non-root user
-USER stunnel
+# # Switch to non-root user
+# USER stunnel
 
-# Set working directory
-WORKDIR /srv
+# # Set working directory
+# WORKDIR /srv
 
 # Define entrypoint and CMD
 ENTRYPOINT ["/srv/entrypoint.sh"]
