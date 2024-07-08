@@ -1,34 +1,33 @@
-FROM alpine:latest
+FROM debian:latest
 
 # Create the group and user "stunnel"
 RUN set -x \
-       && addgroup -S stunnel \
-       && adduser -S -G stunnel stunnel
+       && groupadd -r stunnel \
+       && useradd -r -g stunnel stunnel
 
 # Install necessary packages as root
-RUN apk add --update --no-cache \
+RUN apt-get update && apt-get install -y \
        ca-certificates \
-       libintl \
+       gettext-base \
        openssl \
-       stunnel \
-       && grep main /etc/apk/repositories > /etc/apk/main.repo \
-       && apk add --update --no-cache --repositories-file=/etc/apk/main.repo \
-       gettext \
-       && cp -v /usr/bin/envsubst /usr/local/bin/ \
-       && apk del --purge \
-       gettext \
-       && apk --no-network info openssl \
-       && apk --no-network info stunnel
+       stunnel4 \
+       authbind \
+       && rm -rf /var/lib/apt/lists/*
 
 # Copy configuration files and scripts
-COPY *.template openssl.cnf /srv/stunnel/
-COPY stunnel.sh /srv/
+COPY stunnel.conf.template /srv/stunnel/stunnel.conf.template
+COPY openssl.cnf /srv/stunnel/openssl.cnf
+COPY stunnel.sh /srv/stunnel.sh
 
 # Set up directories and permissions
 RUN set -x \
        && chmod +x /srv/stunnel.sh \
        && mkdir -p /var/run/stunnel /var/log/stunnel \
-       && chown -vR stunnel:stunnel /var/run/stunnel /var/log/stunnel \
+       && chown -R stunnel:stunnel /var/run/stunnel /var/log/stunnel
+
+# Ensure the stunnel configuration directory exists and create an initial config file if needed
+RUN mkdir -p /etc/stunnel \
+       && echo "pid = /var/run/stunnel.pid" > /etc/stunnel/stunnel.conf \
        && mv -v /etc/stunnel/stunnel.conf /etc/stunnel/stunnel.conf.original
 
 # Create certificates and CA files as root
@@ -38,12 +37,18 @@ RUN cp -v /etc/ssl/certs/ca-certificates.crt /usr/local/share/ca-certificates/st
 RUN touch /etc/stunnel/stunnel.conf \
        && chown stunnel:stunnel /etc/stunnel/stunnel.conf
 
+# Configure authbind for stunnel user
+RUN mkdir -p /etc/authbind/byport \
+       && touch /etc/authbind/byport/465 \
+       && chown stunnel /etc/authbind/byport/465 \
+       && chmod 500 /etc/authbind/byport/465
+
 # Switch to non-root user
-# USER stunnel
+USER stunnel
 
 # Set working directory
-# WORKDIR /srv
+WORKDIR /srv
 
 # Define entrypoint and CMD
-ENTRYPOINT ["/srv/stunnel.sh"]
+ENTRYPOINT ["/usr/bin/authbind", "/srv/stunnel.sh"]
 CMD ["stunnel"]
