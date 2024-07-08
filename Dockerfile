@@ -38,3 +38,4 @@ WORKDIR /srv
 # Entrypoint and command
 ENTRYPOINT ["/srv/stunnel.sh"]
 CMD ["stunnel"]
+
