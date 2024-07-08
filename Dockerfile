@@ -20,6 +20,9 @@ RUN apk add --update --no-cache \
        && apk --no-network info openssl \
        && apk --no-network info stunnel
 
+# Install authbind
+RUN apk add --update --no-cache authbind
+
 # Copy configuration files and scripts
 COPY *.template openssl.cnf /srv/stunnel/
 COPY stunnel.sh /srv/
@@ -38,6 +41,10 @@ RUN cp -v /etc/ssl/certs/ca-certificates.crt /usr/local/share/ca-certificates/st
 RUN touch /etc/stunnel/stunnel.conf \
        && chown stunnel:stunnel /etc/stunnel/stunnel.conf
 
+RUN touch /etc/authbind/byport/465 \
+       && chown stunnel:stunnel /etc/authbind/byport/465 \
+       && chmod 500 /etc/authbind/byport/465
+
 # Switch to non-root user
 USER stunnel
 
@@ -45,5 +52,5 @@ USER stunnel
 WORKDIR /srv
 
 # Define entrypoint and CMD
-ENTRYPOINT ["/srv/stunnel.sh"]
+ENTRYPOINT ["/usr/bin/authbind", "/srv/stunnel.sh"]
 CMD ["stunnel"]
