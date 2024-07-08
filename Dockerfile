@@ -11,7 +11,6 @@ RUN apk add --update --no-cache \
        libintl \
        openssl \
        stunnel \
-       socat \
        && grep main /etc/apk/repositories > /etc/apk/main.repo \
        && apk add --update --no-cache --repositories-file=/etc/apk/main.repo \
        gettext \
@@ -39,15 +38,11 @@ RUN cp -v /etc/ssl/certs/ca-certificates.crt /usr/local/share/ca-certificates/st
 RUN touch /etc/stunnel/stunnel.conf \
        && chown stunnel:stunnel /etc/stunnel/stunnel.conf
 
-# Grant socat the capability to bind to privileged ports
-RUN apk add --no-cache libcap \
-       && setcap 'cap_net_bind_service=+ep' /usr/bin/socat
-
 # Switch to non-root user
-USER stunnel
+# USER stunnel
 
 # Set working directory
-WORKDIR /srv
+# WORKDIR /srv
 
 # Define entrypoint and CMD
 ENTRYPOINT ["/srv/stunnel.sh"]

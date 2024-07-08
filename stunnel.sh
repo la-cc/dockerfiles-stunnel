@@ -14,7 +14,6 @@ export STUNNEL_CRT="${STUNNEL_CRT:-/etc/stunnel/stunnel.pem}"
 export STUNNEL_DELAY="${STUNNEL_DELAY:-no}"
 export STUNNEL_PROTOCOL_CONFIG_LINE=${STUNNEL_PROTOCOL:+protocol = ${STUNNEL_PROTOCOL}}
 
-# Check if required environment variables are set
 if [ -z "${STUNNEL_SERVICE}" ] || [ -z "${STUNNEL_ACCEPT}" ] || [ -z "${STUNNEL_CONNECT}" ]; then
     echo >&2 "one or more STUNNEL_SERVICE* values missing: "
     echo >&2 "  STUNNEL_SERVICE=${STUNNEL_SERVICE}"
@@ -23,7 +22,6 @@ if [ -z "${STUNNEL_SERVICE}" ] || [ -z "${STUNNEL_ACCEPT}" ] || [ -z "${STUNNEL_
     exit 1
 fi
 
-# Generate SSL key and certificate if they do not exist
 if [ ! -f "${STUNNEL_KEY}" ]; then
     if [ -f "${STUNNEL_CRT}" ]; then
         echo >&2 "crt (${STUNNEL_CRT}) missing key (${STUNNEL_KEY})"
@@ -34,13 +32,8 @@ if [ ! -f "${STUNNEL_KEY}" ]; then
         -config /srv/stunnel/openssl.cnf
 fi
 
-# Create the stunnel configuration file if it does not exist
 if [ ! -s "${STUNNEL_CONF}" ]; then
     cat /srv/stunnel/stunnel.conf.template | envsubst | awk '{$1=$1};1' >"${STUNNEL_CONF}"
 fi
 
-# Run stunnel in the background
-stunnel &
-
-# Use socat to forward traffic from high port to low port
-exec socat TCP4-LISTEN:465,fork TCP4:127.0.0.1:4465
+exec "$@"
