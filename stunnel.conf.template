@@ -18,10 +18,9 @@ output = /var/log/stunnel/stunnel.log
 foreground = yes
 client = ${STUNNEL_CLIENT}
 
-options = NO_IPV6
 
 [${STUNNEL_SERVICE}]
-accept = ${STUNNEL_ACCEPT}
+accept = 0.0.0.0:465
 connect = ${STUNNEL_CONNECT}
 delay = ${STUNNEL_DELAY}
 verify = ${STUNNEL_VERIFY}
