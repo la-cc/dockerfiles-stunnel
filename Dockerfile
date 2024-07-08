@@ -3,8 +3,9 @@ FROM alpine:latest
 # Add user and group for stunnel
 RUN set -x \
        && addgroup -S stunnel \
-       && adduser -S -G stunnel stunnel \
-       && apk add --update --no-cache \
+       && adduser -S -G stunnel stunnel
+
+RUN apk add --update --no-cache \
        ca-certificates \
        libintl \
        openssl \
@@ -26,10 +27,12 @@ COPY stunnel.sh /srv/
 RUN set -x \
        && chmod +x /srv/stunnel.sh \
        && mkdir -p /var/run/stunnel /var/log/stunnel \
-       && chown -R stunnel:stunnel /var/run/stunnel /var/log/stunnel /srv/stunnel \
+       && chown -vR stunnel:stunnel /var/run/stunnel /var/log/stunnel \
        && mv -v /etc/stunnel/stunnel.conf /etc/stunnel/stunnel.conf.original
 
-# Switch to the stunnel user
+RUN cp -v /etc/ssl/certs/ca-certificates.crt /usr/local/share/ca-certificates/stunnel-ca.crt
+
+# Wechsel zum nicht-root Benutzer
 USER stunnel
 
 # Set the working directory
@@ -38,4 +41,3 @@ WORKDIR /srv
 # Entrypoint and command
 ENTRYPOINT ["/srv/stunnel.sh"]
 CMD ["stunnel"]
-
