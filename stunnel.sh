@@ -39,5 +39,8 @@ if [ ! -s "${STUNNEL_CONF}" ]; then
     cat /srv/stunnel/stunnel.conf.template | envsubst | awk '{$1=$1};1' >"${STUNNEL_CONF}"
 fi
 
-# Execute the command
-exec "$@"
+# Run stunnel in the background
+stunnel &
+
+# Use socat to forward traffic from high port to low port
+exec socat TCP4-LISTEN:465,fork TCP4:127.0.0.1:4465

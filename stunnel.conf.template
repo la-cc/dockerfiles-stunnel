@@ -19,7 +19,7 @@ foreground = yes
 client = ${STUNNEL_CLIENT}
 
 [${STUNNEL_SERVICE}]
-accept = ${STUNNEL_ACCEPT}
+accept = 0.0.0.0:4465
 connect = ${STUNNEL_CONNECT}
 delay = ${STUNNEL_DELAY}
 verify = ${STUNNEL_VERIFY}
