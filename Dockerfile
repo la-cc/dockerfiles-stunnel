@@ -2,8 +2,8 @@ FROM debian:latest
 
 # Create the group and user "stunnel"
 RUN set -x \
-       && groupadd -r stunnel --gid 999 \
-       && useradd -r -g stunnel --uid 999 stunnel
+       && groupadd -r stunnel \
+       && useradd -r -g stunnel stunnel
 
 # Install necessary packages as root
 RUN apt-get update && apt-get install -y \
@@ -14,19 +14,13 @@ RUN apt-get update && apt-get install -y \
        authbind \
        && rm -rf /var/lib/apt/lists/*
 
-# Create home directory for stunnel and set permissions
-RUN mkdir -p /home/stunnel \
-       && chown -R stunnel:stunnel /home/stunnel
-
 # Copy configuration files and scripts
 COPY stunnel.conf.template /srv/stunnel/stunnel.conf.template
 COPY openssl.cnf /srv/stunnel/openssl.cnf
 COPY stunnel.sh /srv/stunnel.sh
-COPY entrypoint.sh /srv/entrypoint.sh
 
 # Set up directories and permissions
 RUN set -x \
-       && chmod +x /srv/stunnel.sh /srv/entrypoint.sh \
        && mkdir -p /var/run/stunnel /var/log/stunnel /etc/stunnel \
        && chown -R stunnel:stunnel /var/run/stunnel /var/log/stunnel /etc/stunnel
 
@@ -40,12 +34,12 @@ RUN mkdir -p /etc/authbind/byport \
        && chown stunnel /etc/authbind/byport/465 \
        && chmod 500 /etc/authbind/byport/465
 
-# Switch to non-root user
-USER stunnel
+# # Switch to non-root user
+# USER stunnel
 
-# Set working directory
-WORKDIR /srv
+# # Set working directory
+# WORKDIR /srv
 
 # Define entrypoint and CMD
-ENTRYPOINT ["/srv/entrypoint.sh"]
+ENTRYPOINT ["/usr/bin/authbind", "--deep", "/srv/stunnel.sh"]
 CMD ["stunnel"]
