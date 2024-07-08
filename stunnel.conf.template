@@ -4,8 +4,7 @@ key = ${STUNNEL_KEY}
 setuid = ${STUNNEL_UID}
 setgid = ${STUNNEL_GID}
 
-
-pid = /home/stunnel/stunnel.pid  # Benutzerdefinierte PID-Datei
+pid = /var/run/stunnel/stunnel.pid
 
 socket = l:TCP_NODELAY=1
 socket = r:TCP_NODELAY=1
